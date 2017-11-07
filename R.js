@@ -15,7 +15,7 @@ require ("string.js");
 
 openings  = ['(', '[','{'];
 closings  = [')', ']','}'];  // requires same order as in openings
-firstindent = ['+', '-', '*', '/', '&', '|', '%>%', '%$%', '%*%', '%/%', '%in%']; 
+operators = ['+', '-', '*', '/', '^', '&', '|', '%>%', '%$%', '%%', '%*%', '%/%', '%in%']; 
 
 // Extension of endswith for an array of tests
 function endsWithAny(suffixes, string) {
@@ -133,6 +133,41 @@ function calcMismatchIndent(lineNr) {
     return -1;
 }
 
+// Returns the indent if finding a mismatch using brackets, commas and equal signs
+// If there are no mismatch, -1 is returned.
+// `lineNr`: number of the line for which the indent is calculated
+function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
+    var currentIndent = document.firstVirtualColumn(lineNr);
+    if (currentIndent == 0 && lineLastOp) {
+        return indentWidth;
+    }
+    if (lineLastOp) {
+        var previousLine = getCode(lineNr - 1);
+        if (!endsWithAny(operators, previousLine)) {
+            return currentIndent + indentWidth;
+        } else {
+            return -1;
+        }
+    } else {
+        for (i = lineNr - 1; i>=0; --i) {
+            if (document.firstVirtualColumn(i) < currentIndent) {
+                currentIndent = document.firstVirtualColumn(i);
+                var previousLine = getCode(i - 1);
+                if (!endsWithAny(operators, previousLine)) {
+                    if (i == lineNr - 1) {
+                        return -1
+                    } else {
+                        return currentIndent;
+                    }
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+
+
 // Return the amount of characters (in spaces) to be indented.
 // Special indent() return values:
 //   -2 = no indent
@@ -159,13 +194,11 @@ function indent(line, indentWidth, character) {
 
     // if indent is kept based on mismatch, try indents because of last character
     if (indent == -1) {
-        // if a line ends with characters in "firstindent"
-        if (endsWithAny(firstindent, lastLine) && !lastLine.endsWith('<-')) {
-            // if first time, then indent, else keep indent
-            var secondLastLine = getCode(line -2);
-            if (!endsWithAny(firstindent, secondLastLine)) {
-                indent = document.firstVirtualColumn(line - 1) + indentWidth;
-            }
+        if (endsWithAny(operators, lastLine) && !lastLine.endsWith('<-')) {
+            indent = calcOperatorIndent(line - 1, indentWidth, true);
+        }
+        if (!endsWithAny(operators, lastLine) && !lastLine.endsWith('<-')) {
+            indent = calcOperatorIndent(line - 1, indentWidth, false);
         }
     }
     if (lastLine.endsWith('<-')) {
