@@ -27,13 +27,20 @@ plot(x = vec1[select == test] +
      y = vec3 %*%
          matrix(c(1, 0, 0, 1),
                 nrow = 3))
+
 # Note that this might create issues if you use "=" for assignment,
 # this script is conceived with "<-" for assignment
 
-# Some special characters trigger indenting only the first time
+# Operators indent only the first time
 ggplot(data = data) +
     geom_line(aes(x = something, y = otherstuff)) +
     coord_flip()
+
+# Operators indent at the formula sign "~" when relevant
+lm(Response ~ Var1 +
+              Var2 +
+              Var3,
+   data = data)
 
 # Works well with the tidyverse workflow
 data <-
