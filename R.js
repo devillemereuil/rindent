@@ -9,13 +9,18 @@
 
 // Some functions from Python indentation file (credit to Paul Giannaros <paul@giannaros.org>, Gerald Senarclens de Grancy <oss@senarclens.eu>)
 
+// NB: This script works best if "<-" is used for assignment rather than "="
+
 // required katepart js libraries
 require ("range.js");
 require ("string.js");
 
 openings  = ['(', '[','{'];
 closings  = [')', ']','}'];  // requires same order as in openings
-operators = ['+', '-', '*', '/', '^', '&', '|', '%>%', '%$%', '%%', '%*%', '%/%', '%in%']; 
+operators = ['+', '-', '*', '/', '^',
+             '&', '|', '==', '>', '<', '<=', '>=', '!=',
+             '%%', '%*%', '%/%', '%in%', 
+             '%>%', '%T>%', '%$%']; 
 
 // Extension of endswith for an array of tests
 function endsWithAny(suffixes, string) {
