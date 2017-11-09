@@ -240,6 +240,16 @@ function indent(line, indentWidth, character) {
         indent = calcOperatorIndent(mismatch.line, indentWidth, endsWithAny(operators, lastLine));
     }
     
+    if (mismatch.type == "unclosed" && endsWithAny(operators, lastLine)) {
+        // If there is formula on this line, 
+        // return its position as indent
+        var lineString = document.line(line - 1);
+        for (j = lineString.length; j>=0; --j) {
+            if (document.isComment(line - 1, j) || document.isString(line - 1, j))
+                continue;
+            if (lineString[j] == "~") {
+                return j + 1 + countSpaces(line - 1,j)
+            }
         }
     }
     
