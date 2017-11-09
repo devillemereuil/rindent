@@ -92,7 +92,7 @@ function calcMismatchIndent(lineNr) {
                 // If an open-but-not-closed bracket is found
                 // Return indent corresponding to its position
                 if (countClosing[closings[index]] == -1)
-                    return j + 1 + countSpaces(i,j);
+                    return {indent : j + 1 + countSpaces(i,j), line : i, type : "unclosed"};
             }
             // If the start of the line is reached and
             // no comma was "opened"
@@ -107,9 +107,9 @@ function calcMismatchIndent(lineNr) {
                 if (allclosed) {
                     // if we didn't move, return -1 (keep indent), else return the indent of line i
                     if (i == lineNr) {
-                        return -1;
+                        return {indent : -1, line : i, type : "allclosed"};
                     } else {
-                        return j;
+                        return {indent : j, line : i, type : "allclosed"};
                     }
                 }
                     
@@ -129,41 +129,72 @@ function calcMismatchIndent(lineNr) {
                    // If no comma is "closing" the equal
                    if (countComma == 0) {
                        // Return the position of equal to create a new indent
-                       return j + 1 + countSpaces(i,j);
+                       return {indent : j + 1 + countSpaces(i,j), line : i, type : "equal"};
                    }
                }
             }
         }
     }
-    return -1;
+    return {indent : -1, line : i};
 }
 
-// Returns the indent if finding a mismatch using brackets, commas and equal signs
-// If there are no mismatch, -1 is returned.
-// `lineNr`: number of the line for which the indent is calculated
+// Returns the indent based on operators
+// `lineNr`: number of the line for which the indent is calculated 
+// `indentWidth` : indent width
+// `lineLastOp` : does the line on which returns was hit end with an operator
+//  (note that the line for lineLastOp is not necessarily lineNr)
 function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
     var currentIndent = document.firstVirtualColumn(lineNr);
+    // If we haven't indented yet and line ends up with an operator
+    // then indent
     if (currentIndent == 0 && lineLastOp) {
         return indentWidth;
     }
+    // If the current line ends up with an operator
     if (lineLastOp) {
         var previousLine = getCode(lineNr - 1);
+        // If the line before the indent line doesn't ends up with an operator
         if (!endsWithAny(operators, previousLine)) {
+            // then indent
             return currentIndent + indentWidth;
         } else {
-            return -1;
+            // else don't
+            return currentIndent;
         }
     } else {
-        for (i = lineNr - 1; i>=0; --i) {
-            if (document.firstVirtualColumn(i) < currentIndent) {
-                currentIndent = document.firstVirtualColumn(i);
-                var previousLine = getCode(i - 1);
-                if (!endsWithAny(operators, previousLine)) {
-                    if (i == lineNr - 1) {
-                        return -1
-                    } else {
+        var previousLine = getCode(lineNr - 1);
+        // If the previous line ends with an operator
+        if (endsWithAny(operators, previousLine)) {
+            // Looking for the start of the operator indenting
+            for (i = lineNr - 1; i>=0; --i) {
+                // If we indented in the past
+                if (document.firstVirtualColumn(i) < currentIndent) {
+                    currentIndent = document.firstVirtualColumn(i);
+                    var previousLine = getCode(i - 1);
+                    // and doesn't end up with an operator
+                    if (!endsWithAny(operators, previousLine)) {
+                        //return this line indent otherwise
                         return currentIndent;
                     }
+                }
+            }
+        } else {
+            return currentIndent;
+        }
+        
+        
+        
+        // If the current line doesn't ends up with an operator, we might need to unindent
+        // Let's look above
+        for (i = lineNr; i>=0; --i) {
+            // If a line has a lower indent
+            if (document.firstVirtualColumn(i) <= currentIndent) {
+                currentIndent = document.firstVirtualColumn(i);
+                var previousLine = getCode(i - 1);
+                // and doesn't end up with an operator
+                if (!endsWithAny(operators, previousLine)) {
+                    //return this line indent
+                    return currentIndent;
                 }
             }
         }
@@ -191,21 +222,34 @@ function indent(line, indentWidth, character) {
     
     // opening brackets and returns: simply indent
     if (openings.indexOf(lastChar) > -1) {
-        return document.firstVirtualColumn(line - 1) + indentWidth;
+        if (lastChar == '{') {
+            
+        } else {
+            return document.firstVirtualColumn(line - 1) + indentWidth;
+        }
     }
     
     // calculate indents based on mismatch of brackets, commas and equal signs 
-    var indent = calcMismatchIndent(line - 1);
-
-    // if indent is kept based on mismatch, try indents because of last character
-    if (indent == -1) {
-        if (endsWithAny(operators, lastLine) && !lastLine.endsWith('<-')) {
-            indent = calcOperatorIndent(line - 1, indentWidth, true);
-        }
-        if (!endsWithAny(operators, lastLine) && !lastLine.endsWith('<-')) {
-            indent = calcOperatorIndent(line - 1, indentWidth, false);
+    var mismatch = calcMismatchIndent(line - 1);
+    var indent = mismatch.indent;
+    
+    // if indent is based on non-opened brackets, try indent because of operators
+    // Don't do it if the end is "<-" though (necessary because "-" is an operator...)
+    if (mismatch.type == "allclosed" && !lastLine.endsWith('<-')) {
+        // compute indent due to an operator
+        indent = calcOperatorIndent(mismatch.line, indentWidth, endsWithAny(operators, lastLine));
+    }
+    
         }
     }
+    
+    // At that point, we might have computed an indent equal to the current one,
+    // let's keep it simple
+    if (document.firstVirtualColumn(line - 1) == indent) {
+        indent = -1;
+    }
+    
+    // Assignment is important and particular, so always indent when we do it
     if (lastLine.endsWith('<-')) {
         if (indent > -1)
             indent += indentWidth;
