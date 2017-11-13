@@ -222,11 +222,7 @@ function indent(line, indentWidth, character) {
     
     // opening brackets and returns: simply indent
     if (openings.indexOf(lastChar) > -1) {
-        if (lastChar == '{') {
-            
-        } else {
-            return document.firstVirtualColumn(line - 1) + indentWidth;
-        }
+        return document.firstVirtualColumn(line - 1) + indentWidth;
     }
     
     // calculate indents based on mismatch of brackets, commas and equal signs 
