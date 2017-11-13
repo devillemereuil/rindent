@@ -3,7 +3,7 @@
  * license: LGPL
  * author: Pierre de Villemerereuil <flyos@mailoo.org>
  * revision: 1
- * indent-languages: R, Script R
+ * indent-languages: R, R Script
  * kate-version: 3.10
  */
 
