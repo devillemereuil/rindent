@@ -154,6 +154,10 @@ function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
     // If the current line ends up with an operator
     if (lineLastOp) {
         var previousLine = getCode(lineNr - 1);
+        while (previousLine == '' && lineNr >= 0) {
+            lineNr = lineNr - 1;
+            previousLine = getCode(lineNr - 1);
+        }
         // If the line before the indent line doesn't ends up with an operator
         if (!endsWithAny(operators, previousLine)) {
             // then indent
@@ -164,6 +168,11 @@ function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
         }
     } else {
         var previousLine = getCode(lineNr - 1);
+        while (previousLine == '' && lineNr >= 0) {
+            lineNr = lineNr - 1;
+            previousLine = getCode(lineNr - 1);
+        }
+        
         // If the previous line ends with an operator
         if (endsWithAny(operators, previousLine)) {
             // Looking for the start of the operator indenting
