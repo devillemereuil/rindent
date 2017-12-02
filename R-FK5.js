@@ -20,7 +20,8 @@ closings  = [')', ']','}'];  // requires same order as in openings
 operators = ['+', '-', '*', '/', '^',
              '&', '|', '==', '>', '<', '<=', '>=', '!=',
              '%%', '%*%', '%/%', '%in%', 
-             '%>%', '%T>%', '%$%']; 
+             '%>%', '%T>%', '%$%', '%<>%'];
+equalOperatorSigns = ['=', '>', '<', '!'];
 
 // Extension of endswith for an array of tests
 function endsWithAny(suffixes, string) {
@@ -123,7 +124,7 @@ function calcMismatchIndent(lineNr) {
             }
             
             // Handling equal signs
-            if (lineString[j] == "=") {
+            if (lineString[j] == "=" && equalOperatorSigns.indexOf(lineString[j - 1]) == -1 && lineString[j + 1] != "=") {
                // If not between equal-inducing brackets
                if (countClosing[')'] == 0 && countClosing[']'] == 0) {
                    // If no comma is "closing" the equal
