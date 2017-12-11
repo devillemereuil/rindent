@@ -31,6 +31,26 @@ function endsWithAny(suffixes, string) {
 }
 
 // Return the given line without comments and leading or trailing whitespace.
+// but keep strings (compared to getCode)
+// Eg.
+// getCode(x) -> "for i in range(3):"
+//     if document.line(x) == "  for i in range(3):"
+// getCode(x) -> "for i in range(3):"
+//     if document.line(x) == "for i in range(3):  "
+// getCode(x) -> "for i in range(3):"
+//     if document.line(x) == "for i in range(3):  # grand"
+function getCodeWithString(lineNr) {
+    var line = document.line(lineNr);
+    var code = '';
+    for (var position = 0; position < line.length; position++) {
+        if (document.isCode(lineNr, position) || document.isString(lineNr, position)) {
+            code += line[position];
+        }
+    }
+    return code.trim();
+}
+
+// Return the given line without comments and leading or trailing whitespace.
 // Eg.
 // getCode(x) -> "for i in range(3):"
 //     if document.line(x) == "  for i in range(3):"
@@ -266,7 +286,7 @@ function indent(line, indentWidth, ch) {
     }
     
     // Assignment is important and particular, so always indent when we do it
-    if (lastLine.endsWith('<-')) {
+    if (getCodeWithString(line - 1).endsWith('<-')) {
         if (indent > -1)
             indent += indentWidth;
         else
