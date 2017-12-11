@@ -4,7 +4,7 @@ var katescript = {
     "license": "LGPL",
     "revision": 1,
     "kate-version": "5.1",
-    "indent-languages": ["R", "R Script"],
+    "indent-languages": ["R", "R Script", "Script R"]
 }; // kate-script-header, must be at the start of the file without comments
 
 // Some functions from Python indentation file (credit to Paul Giannaros <paul@giannaros.org>, Gerald Senarclens de Grancy <oss@senarclens.eu>)
@@ -238,7 +238,7 @@ function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
 // Special indent() return values:
 //   -2 = no indent
 //   -1 = keep last indent
-function indent(line, indentWidth, ch) {
+function indent(line, indentWidth, character) {
     if (line == 0)  // don't ever act on document's first line
         return -2;
     var lastLine = getCode(line - 1);
@@ -294,3 +294,5 @@ function indent(line, indentWidth, ch) {
     }
     return indent;
 }
+
+// kate: space-indent on; indent-width 4; replace-tabs on;
