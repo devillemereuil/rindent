@@ -10,8 +10,9 @@
 namefunc <- function(arg1, arg2) {
     tryCatch(
         print("Hello")
-        ) # Unfortunately, the indenting script cannot reset the indent here... 
+    )
 }
+# The script also indent back when a bracket is entered
 
 # Brackets matching for arguments
 paste0("This is a long string",
