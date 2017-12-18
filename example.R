@@ -24,7 +24,7 @@ matrix[row == test,
 # Indent is following "=" unless a corresponding comma/parenthesis is met
 plot(x = vec1[select == test] +
          vec2[select == test],
-     y = vec3 %*%
+     y = vec3 %*%     
          matrix(c(1, 0, 0, 1),
                 nrow = 3))
 
