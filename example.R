@@ -21,6 +21,14 @@ paste0("This is a long string",
 matrix[row == test,
        col == othertest]
 
+# Indent for assignment and formulas
+tmp <-
+    this(is(a, very, big, instruction, that, takes, soooooooome, spaaaaaace))
+# Align in case of operators
+tmp ~ this +
+      that -
+      yetanotherthing
+
 # Accounting for equal sign and commas for indenting
 # Indent is following "=" unless a corresponding comma/parenthesis is met
 plot(x = vec1[select == test] +
