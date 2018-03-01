@@ -373,6 +373,12 @@ function indent(line, indentWidth, ch) {
             indent = locAlign + 1 + countSpaces(mismatch.line, locAlign);
         }
     }
+    
+    // if unclosed bracket is found, check that the line didn't end with this bracket
+    // if it did, do not change anything to the indent
+    if (mismatch.type == "unclosed" && mismatch.indent == document.line(mismatch.line).length) {
+        indent = -1
+    }
        
     // At that point, we might have computed an indent equal to the current one,
     // let's keep it simple and set indent to -1 in that case
