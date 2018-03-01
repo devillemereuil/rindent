@@ -11,6 +11,12 @@ namefunc <- function(arg1, arg2) {
     tryCatch(
         print("Hello")
     )
+    
+    out <- c(
+        x1  = 1,
+        x2  = 2,
+        x3  = 3
+    )
 }
 # The script also indent back when a bracket is entered
 
