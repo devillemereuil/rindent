@@ -101,6 +101,7 @@ function calcMismatchIndent(lineNr, add) {
     
     // starting looking for mismatches
     for (var i = lineNr; i >= 0; --i) {
+        var lastOpen = document.line(i).length;
         var lineString = document.line(i);
         for (var j = lineString.length; j >= 0; --j) {
             // Ignore comments and strings
@@ -119,7 +120,9 @@ function calcMismatchIndent(lineNr, add) {
                 // If an open-but-not-closed bracket is found
                 // Return indent corresponding to its position
                 if (countClosing[closings[index]] == -1)
-                    return {indent : j + 1 + countSpaces(i,j), line : i, type : "unclosed"};
+                    return {indent : j + 1, line : i, pos: lastOpen, type : "unclosed"};
+                // Otherwise just update "lastOpen" to j
+                lastOpen = j;
             }
             // If the start of the line is reached and
             // no comma was "opened"
@@ -134,9 +137,9 @@ function calcMismatchIndent(lineNr, add) {
                 if (allclosed) {
                     // if we didn't move, return -1 (keep indent), else return the indent of line i
                     if (i == lineNr) {
-                        return {indent : -1, line : i, type : "allclosed"};
+                        return {indent : -1, line : i, pos: lastOpen, type : "allclosed"};
                     } else {
-                        return {indent : j, line : i, type : "allclosed"};
+                        return {indent : j, line : i, pos: lastOpen, type : "allclosed"};
                     }
                 }
                     
@@ -169,7 +172,7 @@ function calcMismatchIndent(lineNr, add) {
 // accounting for opening and closing brackets
 // `lineNr`: number of the line to search the align operator in
 // Returns -1 if nothing was found
-function findAlignOperator(lineNr) {
+function findAlignOperator(lineNr, pos) {
     var lineString = document.line(lineNr);
     // initialising some counters
     var countClosing = new Array();
@@ -177,7 +180,7 @@ function findAlignOperator(lineNr) {
         countClosing[elem] = 0;
     });
     
-    for (var j = lineString.length; j >= 0; --j) {
+    for (var j = pos - 1; j >= 0; --j) {
         // Ignore comments and strings
         if (document.isComment(lineNr, j) || document.isString(lineNr, j))
             continue; 
@@ -224,7 +227,7 @@ function findAlignOperator(lineNr) {
 // `indentWidth` : indent width
 // `lineLastOp` : does the line on which returns was hit end with an operator
 //  (note that the line for lineLastOp is not necessarily lineNr)
-function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
+function calcOperatorIndent(lineNr, indentWidth, pos, lineLastOp) {
     var currentIndent = document.firstVirtualColumn(lineNr);
     var refLine = lineNr;
     // If we haven't indented yet and line ends up with an operator
@@ -242,8 +245,7 @@ function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
         // If the line before the indent line doesn't ends up with an operator
         if (!endsWithAny(operators, previousLine)) {
             // then look for align operator
-            
-            locAlign = findAlignOperator(lineNr);
+            locAlign = findAlignOperator(lineNr, pos);
             if (locAlign != -1) {
                 return locAlign + 1 + countSpaces(lineNr, locAlign);
             } else {
@@ -277,10 +279,8 @@ function calcOperatorIndent(lineNr, indentWidth, lineLastOp) {
                 }
             }
         } else {
-            return currentIndent;
+                return currentIndent; 
         }
-        
-        
         
         // If the current line doesn't ends up with an operator, we might need to unindent
         // Let's look above
@@ -326,15 +326,9 @@ function indent(line, indentWidth, ch) {
         return -2;
     var lastLine = getCodeWithString(line - 1);
     var lastChar = lastLine.substr(-1);
-    var newChar = getCodeWithString(line).substr(0, 1);
+    var newChar  = getCodeWithString(line).substr(0, 1);
         
-    // if empty line, strictly keep indent 
-    // (-1 seems to be not strict and "restore" latest indent with text)
-    if (!lastLine.length) {
-        return countSpaces(line - 1, -1);
-    }
-    
-    // Align if a bracket was entered
+    // Align if a closing bracket was entered
     // (note that the code above might also be triggered if a bracket is closed right after an opened one)
     if (closings.indexOf(ch) > -1) {
         //if the entered bracket doesn't start the line, do nothing
@@ -349,7 +343,13 @@ function indent(line, indentWidth, ch) {
             return document.firstVirtualColumn(mismatch.line);
         }
     }
-         
+    
+    // if empty line, strictly keep indent 
+    // (-1 seems to be not strict and "restore" latest indent with text)
+    if (!lastLine.length) {
+        return countSpaces(line - 1, -1);
+    }
+             
     // opening brackets and returns: indent (and unindent following bracket if needed)
     if (openings.indexOf(lastChar) > -1) {
         return alignBrackets(line, lastChar, newChar, indentWidth);
@@ -358,19 +358,19 @@ function indent(line, indentWidth, ch) {
     // calculate indents based on mismatch of brackets, commas and equal signs 
     var mismatch = calcMismatchIndent(line - 1, '');
     var indent = mismatch.indent;
-           
+      
     // if indent is based on non-opened brackets, try indent because of operators
     // Don't do it if the end is "<-" though (necessary because "-" is an operator...)
     if (mismatch.type == "allclosed" && !lastLine.endsWith('<-')) {
         // compute indent due to an operator
-        indent = calcOperatorIndent(mismatch.line, indentWidth, endsWithAny(operators, lastLine));
+        indent = calcOperatorIndent(mismatch.line, indentWidth, mismatch.pos, endsWithAny(operators, lastLine));
     }
     
     if (mismatch.type == "unclosed" && endsWithAny(operators, lastLine)) {
         // look whether we should account for an align operator
-        locAlign = findAlignOperator(line - 1);
+        locAlign = findAlignOperator(mismatch.line, mismatch.pos);
         if (locAlign != -1) {
-            indent = locAlign + 1 + countSpaces(line - 1, locAlign);
+            indent = locAlign + 1 + countSpaces(mismatch.line, locAlign);
         }
     }
        
@@ -391,7 +391,7 @@ function indent(line, indentWidth, ch) {
     }
     
     // Assignment is important and particular, so always indent when we do it
-    if (getCodeWithString(line - 1).endsWith('<-')) {
+    if (getCodeWithString(line - 1).endsWith('<-') || getCodeWithString(line - 1).endsWith('=')) {
         if (indent > -1)
             indent += indentWidth;
         else
