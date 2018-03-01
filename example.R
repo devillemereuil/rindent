@@ -54,16 +54,24 @@ lm(Response ~ Var1 +
 # Works well with the tidyverse workflow
 data <-
     data %>%
-    mutate(var1 = transform(var1),
+    mutate(var4 = case_when(var1 == 1 ~ 1,
+                            var1 == 2 ~ 2,
+                            TRUE      ~ NA) %>%
+                  sqrt(),
            var5 = var2 +
                   var3 +
                   var4,
-           var6 = var4 %>%
-                  map(~ complicated_function(arg1 = .,
+           var6 = var2 %>%
+                  recode(`1` = "a",
+                         `2` = "b",
+                         `3` = "c") %>%
+                  as_factor(),
+           var7 = map(var1, 
+                      ~ complicated_function(arg1 = .,
                                              arg2 = toto +
                                                     tutu,
                                              arg3 = "string")) %>%
                   anotherfunction()) %>%
-    still_there()
-
+    rename(NiceName1 = var1,
+           NiceName2 = var2)
 
