@@ -79,5 +79,13 @@ data <-
                                              arg3 = "string")) %>%
                   anotherfunction()) %>%
     rename(NiceName1 = var1,
-           NiceName2 = var2)
+           NiceName2 = var2) %>%
+    {bind_cols(
+        summarise_at(.,
+                     vars(contains("sel")),
+                     mean),
+        summarise_at(.,
+                     vars(contains("sel")),
+                     var)
+    )}
 
