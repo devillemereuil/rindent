@@ -1,6 +1,6 @@
 var katescript = {
     "name": "R",
-    "author": "Pierre de Villemerereuil <flyos@mailoo.org>",
+    "author": "Pierre de Villemerereuil <pierre.de.villemereuil@mailoo.org>",
     "license": "LGPL",
     "revision": 1,
     "kate-version": "5.1",

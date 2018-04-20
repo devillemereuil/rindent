@@ -1,7 +1,7 @@
 /** kate-script
  * name: R
  * license: LGPL
- * author: Pierre de Villemerereuil <flyos@mailoo.org>
+ * author: Pierre de Villemerereuil <pierre.de.villemereuil@mailoo.org>
  * revision: 1
  * indent-languages: R, R Script
  * kate-version: 3.10
