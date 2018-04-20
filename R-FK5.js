@@ -46,7 +46,7 @@ function getCodeWithString(lineNr) {
     var line = document.line(lineNr);
     var code = '';
     for (var position = 0; position < line.length; position++) {
-        if (document.isCode(lineNr, position) || document.isString(lineNr, position)) {
+        if (document.isCode(lineNr, position) || document.isString(lineNr, position) || document.isOthers(lineNr, position)) {
             code += line[position];
         }
     }

@@ -4,7 +4,7 @@
 ##                         Pierre de Villemereuil
 ###########################################################################
 
-# Indentwith is 4 by default
+# Indentwith is 4 by default here
 
 # Simple indenting when opening (, [ or {
 namefunc <- function(arg1, arg2) {
@@ -34,6 +34,10 @@ tmp <-
 tmp ~ this +
       that -
       yetanotherthing
+# Should not indent after these kind of assignments
+tmp <- NA
+tmp <- "Test"
+tmp
 
 # Accounting for equal sign and commas for indenting
 # Indent is following "=" unless a corresponding comma/parenthesis is met
