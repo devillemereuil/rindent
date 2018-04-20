@@ -237,10 +237,10 @@ function calcOperatorIndent(lineNr, indentWidth, pos, lineLastOp) {
 //     }
     // If the current line ends up with an operator
     if (lineLastOp) {
-        var previousLine = getCode(refLine - 1);
+        var previousLine = getCodeWithString(refLine - 1);
         while (previousLine == '' && refLine >= 0) {
             refLine = refLine - 1;
-            previousLine = getCode(refLine - 1);
+            previousLine = getCodeWithString(refLine - 1);
         }
         // If the line before the indent line doesn't ends up with an operator
         if (!endsWithAny(operators, previousLine)) {
@@ -257,10 +257,10 @@ function calcOperatorIndent(lineNr, indentWidth, pos, lineLastOp) {
             return currentIndent;
         }
     } else {
-        var previousLine = getCode(refLine - 1);
+        var previousLine = getCodeWithString(refLine - 1);
         while (previousLine == '' && refLine >= 0) {
             refLine = refLine - 1;
-            previousLine = getCode(refLine - 1);
+            previousLine = getCodeWithString(refLine - 1);
         }
         
         // If the previous line ends with an operator
@@ -270,7 +270,7 @@ function calcOperatorIndent(lineNr, indentWidth, pos, lineLastOp) {
                 // If we indented in the past
                 if (document.firstVirtualColumn(i) < currentIndent) {
                     currentIndent = document.firstVirtualColumn(i);
-                    var previousLine = getCode(i - 1);
+                    var previousLine = getCodeWithString(i - 1);
                     // and doesn't end up with an operator
                     if (!endsWithAny(operators, previousLine)) {
                         //return this line indent otherwise
@@ -288,7 +288,7 @@ function calcOperatorIndent(lineNr, indentWidth, pos, lineLastOp) {
             // If a line has a lower indent
             if (document.firstVirtualColumn(i) <= currentIndent) {
                 currentIndent = document.firstVirtualColumn(i);
-                var previousLine = getCode(i - 1);
+                var previousLine = getCodeWithString(i - 1);
                 // and doesn't end up with an operator
                 if (!endsWithAny(operators, previousLine)) {
                     //return this line indent
@@ -358,6 +358,11 @@ function indent(line, indentWidth, ch) {
     // calculate indents based on mismatch of brackets, commas and equal signs 
     var mismatch = calcMismatchIndent(line - 1, '');
     var indent = mismatch.indent;
+    
+    debug("mismatch.line = " + mismatch.line)
+    debug("mismatch.pos = " + mismatch.pos)
+    debug("mismatch.indent = " + mismatch.indent)
+    debug("mismatch.type = " + mismatch.type)
       
     // if indent is based on non-opened brackets, try indent because of operators
     // Don't do it if the end is "<-" though (necessary because "-" is an operator...)
