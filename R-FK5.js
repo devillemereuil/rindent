@@ -359,10 +359,10 @@ function indent(line, indentWidth, ch) {
     var mismatch = calcMismatchIndent(line - 1, '');
     var indent = mismatch.indent;
     
-    debug("mismatch.line = " + mismatch.line)
-    debug("mismatch.pos = " + mismatch.pos)
-    debug("mismatch.indent = " + mismatch.indent)
-    debug("mismatch.type = " + mismatch.type)
+//     debug("mismatch.line = " + mismatch.line)
+//     debug("mismatch.pos = " + mismatch.pos)
+//     debug("mismatch.indent = " + mismatch.indent)
+//     debug("mismatch.type = " + mismatch.type)
       
     // if indent is based on non-opened brackets, try indent because of operators
     // Don't do it if the end is "<-" though (necessary because "-" is an operator...)
