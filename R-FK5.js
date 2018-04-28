@@ -7,9 +7,8 @@ var katescript = {
     "indent-languages": ["R", "R Script", "Script R"]
 }; // kate-script-header, must be at the start of the file without comments
 
-// Some functions from Python indentation file (credit to Paul Giannaros <paul@giannaros.org>, Gerald Senarclens de Grancy <oss@senarclens.eu>)
-
-// NB: This script works best if "<-" is used for assignment rather than "="
+// Some functions modified from Python indentation file 
+// (credit to Paul Giannaros <paul@giannaros.org>, Gerald Senarclens de Grancy <oss@senarclens.eu>)
 
 // required katepart js libraries
 require ("range.js");
