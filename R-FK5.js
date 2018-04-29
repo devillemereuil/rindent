@@ -1,9 +1,9 @@
 var katescript = {
     "name": "R",
     "author": "Pierre de Villemerereuil <pierre.de.villemereuil@mailoo.org>",
-    "license": "LGPL",
+    "license": "MIT",
     "revision": 1,
-    "kate-version": "5.1",
+    "kate-version": "5.0",
     "indent-languages": ["R", "R Script", "Script R"]
 }; // kate-script-header, must be at the start of the file without comments
 
