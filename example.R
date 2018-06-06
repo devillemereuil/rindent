@@ -84,6 +84,7 @@ data <-
                   anotherfunction()) %>%
     rename(NiceName1 = var1,
            NiceName2 = var2) %>%
+    #group_by(group) %>%
     {bind_cols(
         summarise_at(.,
                      vars(contains("sel")),
@@ -92,4 +93,3 @@ data <-
                      vars(contains("sel")),
                      var)
     )}
-

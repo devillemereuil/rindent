@@ -266,14 +266,17 @@ function calcOperatorIndent(lineNr, indentWidth, pos, lineLastOp) {
         if (endsWithAny(operators, previousLine)) {
             // Looking for the start of the operator indenting
             for (i = refLine - 1; i>=0; --i) {
-                // If we indented in the past
-                if (document.firstVirtualColumn(i) < currentIndent) {
-                    currentIndent = document.firstVirtualColumn(i);
-                    var previousLine = getCodeWithString(i - 1);
-                    // and doesn't end up with an operator
-                    if (!endsWithAny(operators, previousLine)) {
-                        //return this line indent otherwise
-                        return currentIndent;
+                // If commented line, skip
+                if (getCodeWithString(i) != '') {
+                    // If we indented in the past
+                    if (document.firstVirtualColumn(i) < currentIndent) {
+                        currentIndent = document.firstVirtualColumn(i);
+                        var previousLine = getCodeWithString(i - 1);
+                        // and doesn't end up with an operator
+                        if (!endsWithAny(operators, previousLine)) {
+                            //return this line indent otherwise
+                            return currentIndent;
+                        }
                     }
                 }
             }
