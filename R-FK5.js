@@ -349,6 +349,7 @@ function indent(line, indentWidth, ch) {
     // if empty line, strictly keep indent 
     // (-1 seems to be not strict and "restore" latest indent with text)
     if (!lastLine.length) {
+//         debug("Empty line")
         return countSpaces(line - 1, -1);
     }
              
